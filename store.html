@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المتجر</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="logo">
+        <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753543740/geni_reodan-Photoroom_ndr51x.png" alt="Logo" />
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="#bank">حساب</a>
+        <a href="store.html">المتجر</a>
+        <a href="manage.html">إدارة </a>
+      </nav>
+    </div>
+  </header>
+  <!-- loading -->
+  <!-- <div id="preloader">
+    <div class="loader"></div>
+  </div> -->
+
+  <header class="store-header">
+    <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753274004/stor_LOGO_xzkavq.png" alt="شعار الموقع" class="logo">
+    <h1>المتجر</h1>
+  </header>
+
+  <main class="store-container">
+      <div class="product">
+        
+        <img class="product__image" src="img/product1.jpg" alt="منتج 1">
+        <span class="product__price">99 SK</span>
+        <h1 class="product__title">اسم المنتج 1</h1>
+        <hr />
+        <p>وصف المنتج 1</p>
+        <a href="#" class="product__btn btn">طلب</a>
+      </div>
+
+
+
+
+      
+    <!-- info -->
+    <!-- <div id="product-modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <img id="modal-image" src="" alt="صورة المنتج">
+        <h2 id="modal-title"></h2>
+        <p id="modal-description"></p>
+        <p>الكمية المتوفرة: <span id="modal-stock"></span></p>
+        <p>السعر: <span id="modal-price"></span> SK</p>
+        <button class="order-btn">اضغط للطلب</button>
+      </div>
+    </div> -->
+
+
+  </main>
+<br>
+      <!-- نموذج إضافة منتج -->
+      <section class="add-product-section">
+        <h2>إضافة منتج جديد</h2>
+        <form id="add-product-form">
+          <input type="text" id="product-name" placeholder="اسم المنتج" required>
+          <textarea id="product-description" placeholder="وصف المنتج" required></textarea>
+          <input type="number" id="product-price" placeholder="السعر بـ SK" required>
+          <input type="file" id="product-image" accept="image/*" required>
+          <button type="submit">إرسال المنتج</button>
+        </form>
+        <p id="form-message" class="hidden"></p>
+      </section>
+
+    <!-- footer -->
+    <footer>
+      <div class="social-links">
+        <a href="#">فيسبوك</a>
+        <a href="#">انستغرام</a>
+        <a href="#">تويتر</a>
+      </div>
+      <p>© جميع الحقوق محفوظة 2025</p>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="style.css">
+  <title>إدارة المنتجات</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    /* ألوان متناسقة مع صفحة المتجر */
+:root {
+  --color-primary: #5a4de8; /* بنفسجي أزرق */
+  --color-secondary: #3f51b5; /* أزرق غامق */
+  --color-bg: #f0f2ff;
+  --color-text: #333;
+  --color-accent: #7e57c2;
+  --color-white: #fff;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-top: 100px;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* الهيدر */
+.site-header {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  padding: 15px 0;
+  color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.site-header .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.site-header .logo img {
+  height: 45px;
+  filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+}
+
+.site-header .nav-links a {
+  color: var(--color-white);
+  margin-left: 20px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.site-header .nav-links a:hover {
+  color: var(--color-accent);
+}
+
+/* لتفادي تداخل المحتوى مع الهيدر الثابت */
+body > h2:first-of-type {
+  margin-top: 100px;
+}
+
+/* العناوين */
+h2 {
+  color: var(--color-secondary);
+  margin-bottom: 15px;
+  font-weight: 700;
+  font-size: 1.8rem;
+  text-shadow: 1px 1px 3px rgba(126, 87, 194, 0.5);
+}
+
+/* الحاويات للمنتجات */
+#pending-products,
+#accepted-products {
+  max-width: 1200px;
+  margin: 0 auto 50px auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* بطاقة منتج الإدارة */
+.product {
+  background-color: var(--color-white);
+  padding: 20px 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(90, 77, 232, 0.15);
+  width: 320px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow 0.3s ease;
+}
+
+.product:hover {
+  box-shadow: 0 12px 30px rgba(90, 77, 232, 0.3);
+}
+
+/* صورة المنتج */
+.product img {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(90, 77, 232, 0.2);
+  object-fit: cover;
+  max-height: 180px;
+}
+
+/* تفاصيل المنتج */
+.product h3 {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.product p {
+  font-size: 1rem;
+  color: var(--color-text);
+  text-align: center;
+  min-height: 45px;
+}
+
+.product .price {
+  font-weight: 700;
+  color: var(--color-secondary);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* أزرار العملية */
+.product .actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.product .actions button {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-white);
+  transition: background-color 0.3s ease;
+  box-shadow: 0 5px 15px rgba(90, 77, 232, 0.3);
+}
+
+button.accept {
+  background-color: #4caf50;
+}
+
+button.accept:hover {
+  background-color: #388e3c;
+}
+
+button.reject {
+  background-color: #f44336;
+}
+
+button.reject:hover {
+  background-color: #d32f2f;
+}
+
+button.edit {
+  background-color: #2196f3;
+}
+
+button.edit:hover {
+  background-color: #1565c0;
+}
+
+/* نافذة التعديل */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--color-white);
+  padding: 25px 30px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 8px 30px rgba(90, 77, 232, 0.4);
+  position: relative;
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  color: var(--color-primary);
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.6rem;
+  text-shadow: 1px 1px 3px rgba(126, 87, 194, 0.5);
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.modal-content button[type="submit"] {
+  width: 100%;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: 14px 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(90, 77, 232, 0.35);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal-content button[type="submit"]:hover {
+  background: var(--color-accent);
+  box-shadow: 0 8px 25px rgba(126, 87, 194, 0.7);
+}
+
+/* زر الإغلاق */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  left: 20px;
+  font-size: 22px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: var(--color-accent);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  #pending-products,
+  #accepted-products {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .product {
+    width: 90%;
+    max-width: 100%;
+  }
+
+  .modal-content {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 400px) {
+  .site-header .nav-links a {
+    margin-left: 10px;
+    font-size: 0.9rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+    
+    </style>
+</head>
+<body style="padding-top:100PX ;">
+  <header class="site-header">
+    <div class="container">
+      <div class="logo">
+        <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753543740/geni_reodan-Photoroom_ndr51x.png" alt="Logo" />
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="#bank">حساب</a>
+        <a href="store.html">المتجر</a>
+        <a href="manage.html">إدارة </a>
+      </nav>
+    </div>
+  </header>
+
+  <h2>المنتجات المعلقة</h2>
+  <div id="pending-products"></div>
+
+  <h2>المنتجات المقبولة</h2>
+  <div id="accepted-products"></div>
+
+  <!-- نافذة التعديل -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeEditModal()">✖</span>
+      <h3>تعديل المنتج</h3>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id">
+        <input type="text" id="edit-name" placeholder="اسم المنتج" required>
+        <textarea id="edit-description" placeholder="الوصف" required></textarea>
+        <input type="number" id="edit-price" placeholder="الثمن بـ SK" required>
+        <input type="text" id="edit-image" placeholder="رابط الصورة" required>
+        <button type="submit">حفظ التعديلات</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="social-links">
+      <a href="#">فيسبوك</a>
+      <a href="#">انستغرام</a>
+      <a href="#">تويتر</a>
+    </div>
+    <p>© جميع الحقوق محفوظة 2025</p>
+  </footer>
+
+<!-- Firebase -->
+
+  <script src="script.js"></script>
+
+<script>
+
+  // كلمة المرور المطلوبة
+  const correctPassword = "pawer1234"; // غيرها لما تريد
+
+  // إظهار نافذة إدخال كلمة السر
+  const password = prompt("يرجى إدخال كلمة المرور للدخول إلى صفحة الإدارة:");
+
+  if (password !== correctPassword) {
+    alert("كلمة المرور غير صحيحة!");
+    window.location.href = "index.html"; // الرجوع للصفحة الرئيسية
+  }
+
+const pendingContainer = document.getElementById('pending-products');
+const acceptedContainer = document.getElementById('accepted-products');
+
+const editModal = document.getElementById('edit-modal');
+const editForm = document.getElementById('edit-form');
+const editIdInput = document.getElementById('edit-id');
+const editNameInput = document.getElementById('edit-name');
+const editDescriptionInput = document.getElementById('edit-description');
+const editPriceInput = document.getElementById('edit-price');
+const editImageInput = document.getElementById('edit-image');
+
+// جلب وعرض المنتجات المعلقة
+function loadPendingProducts() {
+  db.ref('products_processing').on('value', snapshot => {
+    pendingContainer.innerHTML = '';
+    if (!snapshot.exists()) {
+      pendingContainer.innerHTML = '<p>لا توجد منتجات معلقة</p>';
+      return;
+    }
+    snapshot.forEach(childSnapshot => {
+      const key = childSnapshot.key;
+      const product = childSnapshot.val();
+      const productElem = createProductElement(product, key, true);
+      pendingContainer.appendChild(productElem);
+    });
+  });
+}
+
+// جلب وعرض المنتجات المقبولة
+function loadAcceptedProducts() {
+  db.ref('products_accepted').on('value', snapshot => {
+    acceptedContainer.innerHTML = '';
+    if (!snapshot.exists()) {
+      acceptedContainer.innerHTML = '<p>لا توجد منتجات مقبولة</p>';
+      return;
+    }
+    snapshot.forEach(childSnapshot => {
+      const key = childSnapshot.key;
+      const product = childSnapshot.val();
+      const productElem = createProductElement(product, key, false);
+      acceptedContainer.appendChild(productElem);
+    });
+  });
+}
+
+// إنشاء عنصر منتج (معلق أو مقبول)
+function createProductElement(product, key, isPending) {
+  const div = document.createElement('div');
+  div.classList.add('product');
+  div.style.border = '1px solid #ccc';
+  div.style.padding = '10px';
+  div.style.marginBottom = '10px';
+  div.style.borderRadius = '6px';
+  div.style.backgroundColor = isPending ? '#fff9e6' : '#e6fff4';
+
+  div.innerHTML = `
+    <h3>${product.name}</h3>
+    <img src="${product.imageUrl}" alt="${product.name}" style="max-width: 150px; display:block; margin-bottom: 10px;">
+    <p>${product.description}</p>
+    <p>السعر: ${product.price} SK</p>
+  `;
+
+  // أزرار التحكم
+  const btnContainer = document.createElement('div');
+  btnContainer.style.marginTop = '10px';
+
+  // زر تعديل (لكل من المعلق والمقبول)
+  const editBtn = document.createElement('button');
+  editBtn.textContent = 'تعديل';
+  editBtn.className = 'edit';
+  editBtn.style.marginRight = '5px';
+  editBtn.addEventListener('click', () => openEditModal(key, product, isPending));
+  btnContainer.appendChild(editBtn);
+
+  if (isPending) {
+    // زر قبول
+    const acceptBtn = document.createElement('button');
+    acceptBtn.textContent = 'قبول';
+    acceptBtn.className = 'accept';
+    acceptBtn.style.marginRight = '5px';
+    acceptBtn.addEventListener('click', () => acceptProduct(key));
+    btnContainer.appendChild(acceptBtn);
+
+    // زر رفض
+    const rejectBtn = document.createElement('button');
+    rejectBtn.textContent = 'رفض';
+    rejectBtn.className = 'reject';
+    rejectBtn.addEventListener('click', () => rejectProduct(key));
+    btnContainer.appendChild(rejectBtn);
+  }
+
+  div.appendChild(btnContainer);
+
+  return div;
+}
+
+// فتح نافذة التعديل وملء الحقول
+function openEditModal(key, product, isPending) {
+  editIdInput.value = key;
+  editNameInput.value = product.name;
+  editDescriptionInput.value = product.description;
+  editPriceInput.value = product.price;
+  editImageInput.value = product.imageUrl;
+  editModal.dataset.pending = isPending ? 'true' : 'false';
+  editModal.classList.add('show');
+}
+
+// إغلاق نافذة التعديل
+function closeEditModal() {
+  editModal.classList.remove('show');
+  editForm.reset();
+}
+
+// حفظ التعديلات
+editForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  const key = editIdInput.value;
+  const updatedProduct = {
+    name: editNameInput.value.trim(),
+    description: editDescriptionInput.value.trim(),
+    price: parseFloat(editPriceInput.value),
+    imageUrl: editImageInput.value.trim(),
+  };
+
+  const isPending = editModal.dataset.pending === 'true';
+
+  const path = isPending ? 'products_processing' : 'products_accepted';
+
+  db.ref(`${path}/${key}`).update(updatedProduct)
+    .then(() => {
+      alert('تم تحديث المنتج بنجاح');
+      closeEditModal();
+    })
+    .catch(err => alert('خطأ أثناء التحديث: ' + err.message));
+});
+
+// قبول المنتج: نقل من المعلق إلى المقبول
+function acceptProduct(key) {
+  const refPending = db.ref('products_processing/' + key);
+  refPending.once('value').then(snapshot => {
+    if (snapshot.exists()) {
+      const product = snapshot.val();
+      const refAccepted = db.ref('products_accepted');
+      refAccepted.push(product)
+        .then(() => {
+          return refPending.remove();
+        })
+        .then(() => {
+          alert('تم قبول المنتج');
+        });
+    }
+  });
+}
+
+// رفض المنتج: حذف من المعلق
+function rejectProduct(key) {
+  if (confirm('هل أنت متأكد من رفض هذا المنتج؟')) {
+    db.ref('products_processing/' + key).remove()
+      .then(() => alert('تم رفض المنتج وحذفه'));
+  }
+}
+
+// تشغيل التحميل الأولي
+loadPendingProducts();
+loadAcceptedProducts();
+
+</script>
+
+</body>
+</html>

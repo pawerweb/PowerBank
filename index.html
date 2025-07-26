@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>موقع البنك والمتجر</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container">
+          <div class="logo">
+            <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753543740/geni_reodan-Photoroom_ndr51x.png" alt="Logo" />
+          </div>
+          <nav class="nav-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="#bank">حساب</a>
+            <a href="store.html">المتجر</a>
+            <a href="manage.html">إدارة </a>
+          </nav>
+        </div>
+      </header>
+      
+  <!-- loading-->
+  <!-- <div id="preloader">
+    <div class="loader"></div>
+  </div> -->
+
+  <!-- Fpage-->
+  <header class="intro-section">
+    <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753543740/geni_reodan-Photoroom_ndr51x.png" alt="شعار الموقع" class="logogeneral">
+    <h1>مرحبًا بك في موقع بنك باور</h1>
+    <p>مدراء البنك : 
+      لاكسس سابقا 
+      هاجر حاليا
+    </p>
+  </header>
+
+  <main>
+    <!-- bqnk -->
+    <section class="section bank-section">
+      <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753274703/482047004_1193126386148332_2805364237264289774_n_eb2ddh.jpg" alt="غلاف البنك" class="cover">
+      <div class="info">
+        <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753273973/BANK_LOGO_e97e6k.png" alt="شعار الموقع" class="logo">
+        <h2>البنك</h2>
+        <p>يُعدّ بنك باور أحد الأنظمة الأساسية التي تم إنشاؤها في مجموعة أنمي باور من طرف (سوكي) في سنة 2019، حيث كان الهدف منه تسهيل تبادل العملات الخاصة بالمجموعة (السويكات) على أعضاء المجموعة، ويتيح لهم شراء بطاقات ذات استعمالات مختلفة، وإضافة بعضٍ من المتعة والتميّز من خلال فرعيه الاثنين: متجر باور وكازينو باور.
+          تاريخ التأسيس : 2019-07-04
+        </p>
+        <button onclick="location.href='bank.html'">الدخول للبنك</button>
+      </div>
+    </section>
+
+    <!-- store -->
+    <section class="section store-section">
+      <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753274680/485905060_1110501764422837_2510512188632934935_n_rdchwv.jpg" alt="غلاف المتجر" class="cover">
+      <div class="info">
+        <img src="https://res.cloudinary.com/doe1glpxm/image/upload/v1753274004/stor_LOGO_xzkavq.png" alt="شعار الموقع" class="logo">
+        <h2>المتجر</h2>
+        <p>يُعد متجر باور فرعًا أساسيًّا للبنك، ومن خلاله يتم عرض مجموعة متنوعة من البطاقات، من بينها بطاقات تُمكِّن من زيارة الفرق أو الانضمام إليها.
+          تاريخ التأسيس : 2020-01-29
+        </p>
+        <button onclick="location.href='store.html'">الدخول للمتجر</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- footer -->
+  <footer>
+    <div class="social-links">
+      <a href="#">فيسبوك</a>
+      <a href="#">انستغرام</a>
+      <a href="#">تويتر</a>
+    </div>
+    <p>© جميع الحقوق محفوظة 2025</p>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
